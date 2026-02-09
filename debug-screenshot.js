@@ -10,8 +10,8 @@ page.on('console', msg => console.log('BROWSER CONSOLE:', msg.type(), msg.text()
 page.on('pageerror', err => console.log('BROWSER ERROR:', err.message));
 
 try {
-  console.log('Navigating to http://localhost:5173/...');
-  await page.goto('http://localhost:5173/', { waitUntil: 'networkidle', timeout: 10000 });
+  console.log('Navigating to http://localhost:5174/...');
+  await page.goto('http://localhost:5174/', { waitUntil: 'networkidle', timeout: 10000 });
   
   console.log('Waiting 2 seconds for render...');
   await page.waitForTimeout(2000);
