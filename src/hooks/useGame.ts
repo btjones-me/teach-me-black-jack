@@ -90,19 +90,45 @@ export function useGame(totalHands: number = DEFAULT_TOTAL_HANDS) {
 
       // Hand is complete - evaluate and give feedback
       if (handComplete) {
-        // Get optimal action for the FIRST decision point
+        // New approach: Evaluate the final decision that ended the hand
+        // This makes intuitive sense - we evaluate what you chose to do
+        // with the hand you had at the moment of decision
+        
+        let cardsToEvaluate = prevState.playerCards;
+        let actionToEvaluate = chosenAction;
+        let canDoubleForEval = prevState.canDouble;
+        let canSplitForEval = prevState.canSplit;
+        
+        // If they hit, we evaluate the decision BEFORE the bust/stand
+        // For bust, evaluate whether they should have hit with their previous hand
+        if (busted) {
+          // They busted - evaluate whether hitting was correct with their pre-final-card hand
+          // cardsToEvaluate is already prevState.playerCards (before the busting card)
+          actionToEvaluate = Action.HIT;
+        } else if (chosenAction === Action.DOUBLE) {
+          // Evaluate DOUBLE decision based on starting hand
+          cardsToEvaluate = prevState.playerCards;
+          canDoubleForEval = prevState.canDouble;
+          canSplitForEval = prevState.canSplit;
+        } else if (chosenAction === Action.STAND) {
+          // Evaluate STAND decision based on the hand they had when they chose to stand
+          cardsToEvaluate = prevState.playerCards;
+          canDoubleForEval = false; // Can't double after hitting
+          canSplitForEval = false;  // Can't split after hitting
+        }
+        
+        // Get optimal for the decision point
         const optimalActions = getOptimalActions(
-          prevState.playerCards,
+          cardsToEvaluate,
           prevState.dealerCard,
-          prevState.canDouble,
-          prevState.canSplit
+          canDoubleForEval,
+          canSplitForEval
         );
+        
+        const feedback = createFeedback(actionToEvaluate, optimalActions);
 
-        // For now, evaluate only the first action
+        // For history, record the first action (for consistency)
         const firstAction = newActionsThisHand[0];
-        const feedback = createFeedback(firstAction, optimalActions);
-
-        // Record hand result
         const handResult: HandResult = {
           handNumber: prevState.currentHand,
           playerCards: newPlayerCards,
