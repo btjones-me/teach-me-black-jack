@@ -2,7 +2,8 @@
  * Deck management - dealing, shuffling, card values
  */
 
-import { Card, Rank, Suit } from './types';
+import type { Card } from './types';
+import { Rank, Suit } from './types';
 
 /**
  * Get the blackjack value for a rank

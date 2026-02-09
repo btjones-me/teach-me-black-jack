@@ -2,7 +2,8 @@
  * Card component - CSS-based playing card
  */
 
-import { Card as CardType, Suit } from '../game/types';
+import type { Card as CardType } from '../game/types';
+import { Suit } from '../game/types';
 
 interface CardProps {
   card: CardType;

@@ -2,7 +2,7 @@
  * FeedbackModal - Show Jack's feedback after each hand
  */
 
-import { FeedbackResult } from '../game/types';
+import type { FeedbackResult } from '../game/types';
 import { JackDialogue } from './Jack';
 
 interface FeedbackModalProps {

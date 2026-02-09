@@ -2,7 +2,7 @@
  * GameSummary - End-of-session results
  */
 
-import { HandResult } from '../game/types';
+import type { HandResult } from '../game/types';
 import { Jack } from './Jack';
 
 interface GameSummaryProps {

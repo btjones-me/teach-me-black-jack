@@ -2,7 +2,8 @@
  * Scoring system and Jack's feedback generation
  */
 
-import { Action, FeedbackResult, StrategyAction } from './types';
+import type { FeedbackResult, StrategyAction } from './types';
+import { Action } from './types';
 
 /**
  * Calculate points earned for chosen action
