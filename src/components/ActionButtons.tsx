@@ -20,7 +20,7 @@ const ACTION_LABELS: Record<Action, string> = {
 const ACTION_ICONS: Record<Action, string> = {
   [Action.HIT]: '👆',
   [Action.STAND]: '✋',
-  [Action.DOUBLE]: '💰',
+  [Action.DOUBLE]: '×2',
   [Action.SPLIT]: '✂️',
 };
 
