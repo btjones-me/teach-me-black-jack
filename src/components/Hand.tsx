@@ -2,7 +2,7 @@
  * Hand component - Display a hand of cards with total
  */
 
-import { Card as CardType } from '../game/types';
+import type { Card as CardType } from '../game/types';
 import { calculateHandValue } from '../game/deck';
 import { Card } from './Card';
 

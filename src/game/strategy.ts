@@ -3,7 +3,8 @@
  * Based on: 6-deck, dealer stands on soft 17, double after split allowed
  */
 
-import { Action, Card, StrategyAction } from './types';
+import type { Card, StrategyAction } from './types';
+import { Action } from './types';
 import { calculateHandValue, isPair } from './deck';
 
 /**

@@ -3,7 +3,7 @@
  * Future-proof: Easy to swap for Supabase/backend later
  */
 
-import { GameSettings, HandResult, StorageAdapter } from '../game/types';
+import type { GameSettings, HandResult, StorageAdapter } from '../game/types';
 
 const STORAGE_KEYS = {
   SETTINGS: 'blackjack_settings',
