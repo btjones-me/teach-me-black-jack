@@ -8,6 +8,7 @@ import { ActionButtons } from './components/ActionButtons';
 import { ScoreDisplay } from './components/ScoreDisplay';
 import { FeedbackModal } from './components/FeedbackModal';
 import { GameSummary } from './components/GameSummary';
+import { HandStatus } from './components/HandStatus';
 import './styles/App.css';
 
 function App() {
@@ -64,14 +65,22 @@ function App() {
           className="app__player-hand"
         />
 
+        {gameState.handInProgress && gameState.dealerCard && (
+          <HandStatus
+            playerCards={gameState.playerCards}
+            dealerCard={gameState.dealerCard}
+            actionsCount={gameState.actionsThisHand.length}
+          />
+        )}
+
         <ActionButtons
           availableActions={gameState.availableActions}
           onAction={handleActionClick}
-          disabled={!!gameState.feedback}
+          disabled={!gameState.handInProgress}
         />
       </main>
 
-      {gameState.feedback && (
+      {gameState.feedback && !gameState.handInProgress && (
         <FeedbackModal feedback={gameState.feedback} onContinue={handleContinue} />
       )}
     </div>

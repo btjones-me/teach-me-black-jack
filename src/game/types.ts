@@ -63,6 +63,10 @@ export interface GameState {
   feedback: FeedbackResult | null;
   history: HandResult[];
   gameOver: boolean;
+  handInProgress: boolean;
+  actionsThisHand: Action[];
+  canDouble: boolean;
+  canSplit: boolean;
 }
 
 export interface FeedbackResult {

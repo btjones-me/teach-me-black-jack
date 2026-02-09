@@ -5,7 +5,7 @@
 import { useState, useCallback } from 'react';
 import type { GameState, HandResult } from '../game/types';
 import { Action } from '../game/types';
-import { dealHand } from '../game/deck';
+import { dealHand, dealRandomCard, calculateHandValue } from '../game/deck';
 import { getAvailableActions, getOptimalActions } from '../game/strategy';
 import { createFeedback } from '../game/scoring';
 
@@ -25,6 +25,10 @@ function initializeGame(hands: number): GameState {
     feedback: null,
     history: [],
     gameOver: false,
+    handInProgress: true,
+    actionsThisHand: [],
+    canDouble: true,
+    canSplit: true,
   };
 }
 
@@ -33,41 +37,97 @@ export function useGame(totalHands: number = DEFAULT_TOTAL_HANDS) {
 
   const handleAction = useCallback((chosenAction: Action) => {
     setGameState((prevState) => {
-      if (prevState.gameOver || !prevState.dealerCard) {
+      if (prevState.gameOver || !prevState.dealerCard || !prevState.handInProgress) {
         return prevState;
       }
 
-      // Get optimal actions for current situation
-      const optimalActions = getOptimalActions(
-        prevState.playerCards,
-        prevState.dealerCard,
-        true, // canDouble (first action)
-        true  // canSplit
-      );
+      // Track this action
+      const newActionsThisHand = [...prevState.actionsThisHand, chosenAction];
+      let newPlayerCards = [...prevState.playerCards];
+      let handComplete = false;
+      let busted = false;
 
-      // Create feedback
-      const feedback = createFeedback(chosenAction, optimalActions);
+      // Handle HIT: deal a card and continue
+      if (chosenAction === Action.HIT) {
+        const newCard = dealRandomCard();
+        newPlayerCards = [...prevState.playerCards, newCard];
+        
+        // Check for bust
+        const handValue = calculateHandValue(newPlayerCards);
+        if (handValue.total > 21) {
+          handComplete = true;
+          busted = true;
+        }
+        
+        // After first action, can't double or split anymore
+        const newCanDouble = false;
+        const newCanSplit = false;
+        
+        if (!handComplete) {
+          // Continue playing - update available actions
+          const newAvailableActions = getAvailableActions(newPlayerCards, newCanDouble);
+          
+          return {
+            ...prevState,
+            playerCards: newPlayerCards,
+            actionsThisHand: newActionsThisHand,
+            canDouble: newCanDouble,
+            canSplit: newCanSplit,
+            availableActions: newAvailableActions,
+          };
+        }
+      } else {
+        // STAND, DOUBLE, or SPLIT ends the hand
+        handComplete = true;
+        
+        if (chosenAction === Action.DOUBLE) {
+          // Double adds one card
+          const newCard = dealRandomCard();
+          newPlayerCards = [...prevState.playerCards, newCard];
+        }
+        // Note: SPLIT is not fully implemented in this version, treated as hand-ending
+      }
 
-      // Record hand result
-      const handResult: HandResult = {
-        handNumber: prevState.currentHand,
-        playerCards: prevState.playerCards,
-        dealerCard: prevState.dealerCard,
-        chosen: chosenAction,
-        optimal: optimalActions[0].action,
-        pointsEarned: feedback.pointsEarned,
-      };
+      // Hand is complete - evaluate and give feedback
+      if (handComplete) {
+        // Get optimal action for the FIRST decision point
+        const optimalActions = getOptimalActions(
+          prevState.playerCards,
+          prevState.dealerCard,
+          prevState.canDouble,
+          prevState.canSplit
+        );
 
-      // Update score and history
-      const newScore = prevState.score + feedback.pointsEarned;
-      const newHistory = [...prevState.history, handResult];
+        // For now, evaluate only the first action
+        const firstAction = newActionsThisHand[0];
+        const feedback = createFeedback(firstAction, optimalActions);
 
-      return {
-        ...prevState,
-        score: newScore,
-        feedback,
-        history: newHistory,
-      };
+        // Record hand result
+        const handResult: HandResult = {
+          handNumber: prevState.currentHand,
+          playerCards: newPlayerCards,
+          dealerCard: prevState.dealerCard,
+          chosen: firstAction,
+          optimal: optimalActions[0].action,
+          pointsEarned: feedback.pointsEarned,
+        };
+
+        // Update score and history
+        const newScore = prevState.score + feedback.pointsEarned;
+        const newHistory = [...prevState.history, handResult];
+
+        return {
+          ...prevState,
+          playerCards: newPlayerCards,
+          score: newScore,
+          feedback,
+          history: newHistory,
+          handInProgress: false,
+          actionsThisHand: newActionsThisHand,
+        };
+      }
+
+      return prevState;
     });
   }, []);
 
@@ -79,6 +139,7 @@ export function useGame(totalHands: number = DEFAULT_TOTAL_HANDS) {
           ...prevState,
           gameOver: true,
           feedback: null,
+          handInProgress: false,
         };
       }
 
@@ -93,6 +154,10 @@ export function useGame(totalHands: number = DEFAULT_TOTAL_HANDS) {
         dealerCard,
         availableActions,
         feedback: null,
+        handInProgress: true,
+        actionsThisHand: [],
+        canDouble: true,
+        canSplit: true,
       };
     });
   }, []);
