@@ -115,8 +115,10 @@ export function calculateHandValue(cards: Card[]): { total: number; isSoft: bool
 
 /**
  * Check if hand is a pair (for split option)
+ * In blackjack, you can only split cards of the same RANK, not just same value
+ * (e.g., K-K is splittable, but K-Q is not, even though both = 10)
  */
 export function isPair(cards: Card[]): boolean {
   if (cards.length !== 2) return false;
-  return cards[0].value === cards[1].value;
+  return cards[0].rank === cards[1].rank;
 }
