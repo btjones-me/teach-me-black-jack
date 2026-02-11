@@ -64,7 +64,7 @@ function getOptimalMessage(action: Action): string {
     ],
     [Action.STAND]: [
       "That's the play! Standing gives you the best odds here.",
-      "Perfect! The dealer's likely to bust with that card showing.",
+      "Perfect! Standing was the right call.",
       "Exactly right! Standing is the way to go.",
       "Spot on! No need to risk busting.",
     ],
@@ -141,19 +141,20 @@ function formatAction(action: Action): string {
 
 /**
  * Get reasoning for why an action is correct
+ * Includes past-tense dealer info for feedback screen
  */
 function getReasonForAction(optimal: Action, chosen: Action): string {
   if (optimal === Action.STAND && chosen === Action.HIT) {
-    return "The dealer's up card makes busting likely for them.";
+    return "The dealer was likely to bust with that card showing.";
   }
   if (optimal === Action.HIT && chosen === Action.STAND) {
-    return "Your total is too low to stand with the dealer showing strength.";
+    return "Your total was too low to stand—the dealer had a strong hand.";
   }
   if (optimal === Action.DOUBLE && chosen === Action.HIT) {
-    return "This is a prime doubling opportunity to maximize your edge.";
+    return "This was a prime doubling opportunity to maximize your edge.";
   }
   if (optimal === Action.SPLIT && chosen !== Action.SPLIT) {
-    return "Splitting creates two strong starting hands.";
+    return "Splitting would have created two strong starting hands.";
   }
   return "Trust the math—basic strategy is proven over millions of hands.";
 }
